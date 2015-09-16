@@ -22,4 +22,6 @@ test:
 
 production:
   <<: *default
+  pool: 5
+  timeout: 5000
   database: db/production.sqlite3
