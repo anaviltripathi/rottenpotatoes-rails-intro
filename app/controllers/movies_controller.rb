@@ -33,6 +33,8 @@ class MoviesController < ApplicationController
    		rat = params[:ratings]
    	end
    	
+   	if(params[:ratings]!=nil or params[:sort_param] == nil)
+   	
    	if(params[:ratings]==nil)
    		flash.keep
    		redirect_to :ratings => rat, :sort_param => sort and return
@@ -43,6 +45,7 @@ class MoviesController < ApplicationController
    		redirect_to :ratings => rat, :sort_param => sort and return
    	end
   	
+  	end
   	@all_ratings.each { |rating|
 	if params[:ratings] == nil
 			@checked_ratings[rating] = false
