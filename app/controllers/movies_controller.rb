@@ -18,34 +18,29 @@ class MoviesController < ApplicationController
 	@movies = Movie.all
 	
 	@redirect_stopper = 1
-
-	
-	@first_time = 1
-	
-
-	
-	#if(session == nil)
-  	#	session[:sort_param] = params[:sort_param]
-  	#	session[:ratings] = params[:ratings]
-  	#end
   	
   	
-  	if(params[:sort_param]==nil)
-   		sort = session[:sort_param] 
-   	else
-   		sort = params[:sort_param]
+#  	if(params[:sort_param]==nil)
+ #  		sort = session[:sort_param] 
+ #  	else
+  # 		sort = params[:sort_param]
+ #  	end
+
+  # 	if(params[:ratings]==nil)
+  # 		rat = session[:ratings]
+  # 	else
+  # 		rat = params[:ratings]
+  # 	end
+	
+	if(params[:sort_param]==nil)
+   		params[:sort_param] = session[:sort_param]
    	end
 
    	if(params[:ratings]==nil)
-   		rat = session[:ratings]
-   	else
-   		rat = params[:ratings]
+   		params[:ratings] = session[:ratings]
    	end
-   	
-	#if(@first_time !=1)
-	
 	    	
-   	if(params[:ratings]!=nil or params[:sort_param] != nil)
+   	if(params[:ratings]!=nil or params[:sort_param] != nil or session[:ratings]!=nil or session[:sort_param] != nil)
    		
    		if(params[:ratings]==nil)# and @redirect_stopper == 0)
    			flash.keep
@@ -58,12 +53,16 @@ class MoviesController < ApplicationController
 		   	@redirect_stopper =0
   	 		#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1  and return 
   	 	end
-  	 	if(params[:sort_param]!=nil and params[:ratings]!=nil)
-  	 		@redirect_stopper = 1
-  	 	end
+  	 	#if(params[:sort_param]!=nil and params[:ratings]!=nil)
+  	 	#	@redirect_stopper = 1
+  	 	#end
   	
   	end
   	
+  	if(@redirect_stopper == 0 and rat != nil and sort !=nil)
+		flash.keep
+  		redirect_to :ratings => rat, :sort_param => sort and return
+  	end
   	
   	
   	@all_ratings.each { |rating|
@@ -82,26 +81,33 @@ class MoviesController < ApplicationController
 
   	end
   	
+  	
+  
   	if (params[:sort_param] == 'title')
     	#params[:sort_param] = session[:sort_param]
     	@movies = @movies.sort_by{|m| m.title.to_s}
     	@title_header = 'hilite'
     elsif params[:sort_param] == 'release_date'
-    	params[:sort_param] = session[:sort_param]
+    	#params[:sort_param] = session[:sort_param]
     	@movies = @movies.sort_by{|m| m.release_date.to_s}
     	@release_header = 'hilite'
    	end	
    	
    	@first_time=0
-
-	session[:sort_param] = params[:sort_param]
-	session[:ratings] = params[:ratings]
 	
-	if(@redirect_stopper == 0 and rat != nil and sort !=nil)
+	if(params[:sort_param]!= nil)
+	session[:sort_param] = params[:sort_param]
+	end
+	if(params[:ratings]!= nil)
+	session[:ratings] = params[:ratings]
+	end
+	
+	if(@redirect_stopper == 0)
 		flash.keep
   		redirect_to :ratings => rat, :sort_param => sort and return
   	end
-  
+	
+	
   end
   	
   	
