@@ -2,6 +2,7 @@ class MoviesController < ApplicationController
 
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
+    @first_time = 1
   end
 
   def show
@@ -16,10 +17,18 @@ class MoviesController < ApplicationController
 	
 	@movies = Movie.all
 	
-	if(session == nil)
-  		session[:sort_param] = params[:sort_param]
-  		session[:ratings] = params[:ratings]
-  	end
+	@redirect_stopper = 1
+
+	
+	@first_time = 1
+	
+
+	
+	#if(session == nil)
+  	#	session[:sort_param] = params[:sort_param]
+  	#	session[:ratings] = params[:ratings]
+  	#end
+  	
   	
   	if(params[:sort_param]==nil)
    		sort = session[:sort_param] 
@@ -33,19 +42,29 @@ class MoviesController < ApplicationController
    		rat = params[:ratings]
    	end
    	
+	#if(@first_time !=1)
+	
+	    	
    	if(params[:ratings]!=nil or params[:sort_param] != nil)
-   	
-   		if(params[:ratings]==nil)
+   		
+   		if(params[:ratings]==nil)# and @redirect_stopper == 0)
    			flash.keep
-   			redirect_to :ratings => rat, :sort_param => sort and return
+   			@redirect_stopper =0
+   			#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1 and return 
   	 	end
    	
-  	 	if(params[:sort_param]==nil)
-		   	flash.keep
-  	 		redirect_to :ratings => rat, :sort_param => sort and return
+  	 	if(params[:sort_param]==nil)#  and @redirect_stopper == 0)
+			flash.keep
+		   	@redirect_stopper =0
+  	 		#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1  and return 
+  	 	end
+  	 	if(params[:sort_param]!=nil and params[:ratings]!=nil)
+  	 		@redirect_stopper = 1
   	 	end
   	
   	end
+  	
+  	
   	
   	@all_ratings.each { |rating|
 	if params[:ratings] == nil
@@ -73,12 +92,15 @@ class MoviesController < ApplicationController
     	@release_header = 'hilite'
    	end	
    	
-   	if(params[:ratings]==nil)
-   		params[:ratings] = session[:ratings]
-   	end
+   	@first_time=0
 
 	session[:sort_param] = params[:sort_param]
 	session[:ratings] = params[:ratings]
+	
+	if(@redirect_stopper == 0 and rat != nil and sort !=nil)
+		flash.keep
+  		redirect_to :ratings => rat, :sort_param => sort and return
+  	end
   
   end
   	
