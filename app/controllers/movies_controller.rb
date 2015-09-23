@@ -16,6 +16,8 @@ class MoviesController < ApplicationController
 	
 	@movies = Movie.all
 	
+	@redirect_stopper =0
+	
 	if(session == nil)
   		session[:sort_param] = params[:sort_param]
   		session[:ratings] = params[:ratings]
@@ -35,13 +37,15 @@ class MoviesController < ApplicationController
    	
    	if(params[:ratings]!=nil or params[:sort_param] != nil)
    	
-   		if(params[:ratings]==nil)
+   		if(params[:ratings]==nil and @redirect_stopper == 0)
    			flash.keep
+   			@redirect_stopper =1
    			redirect_to :ratings => rat, :sort_param => sort and return
   	 	end
    	
-  	 	if(params[:sort_param]==nil)
+  	 	if(params[:sort_param]==nil and @redirect_stopper == 0)
 		   	flash.keep
+		   	@redirect_stopper =1
   	 		redirect_to :ratings => rat, :sort_param => sort and return
   	 	end
   	
