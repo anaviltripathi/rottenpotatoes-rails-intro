@@ -11,45 +11,44 @@ class MoviesController < ApplicationController
   end
 
   def index
-    #@movies = Movie.all
-    #@movies = Movie.order(params[:sort]) 
+  
     @all_ratings = Movie.all_ratings
-    if(params[:ratings] == nil and params[:sort] == nil and (session[:ratings] != nil or session[:sort] != nil))
-	if(params[:ratings] == nil and session[:ratings] != nil)
-	  params[:ratings] = session[:ratings]
-	end
-	if(params[:sort] == nil and session[:sort] != nil)
-	  params[:sort] = session[:sort]
-	end
-	redirect_to movies_path(:sort => params[:sort], :ratings => params[:ratings])
-    else
-	#if(params[:strratings] != nil and params[:strratings] != "[]")
-	#  @selected = params[:strratings].scan(/[\w-]+/)
-	#  session[:strratings] = params[:strratings]
-	if
-	  @selected = params[:ratings]? params[:ratings].keys : @all_ratings
-	  session[:ratings] = params[:ratings] ? params[:ratings].keys : []
-	end
-    if(params[:sort]==nil and session[:sort] != nil)
-	params[:sort]=session[:sort]
-    end
-    session[:sort] = params[:sort]
-    session[:ratings] = params[:ratings]
-    if(params[:sort] == "title")
+    
+    ##Check if params is empty and update it
+    if(params[:ratings] == nil and params[:sort_param] == nil and (session[:ratings] != nil or session[:sort_param] != nil))
+		if(params[:ratings] == nil and session[:ratings] != nil)
+		  params[:ratings] = session[:ratings]
+		end
+		if(params[:sort_param] == nil and session[:sort_param] != nil)
+		  params[:sort_param] = session[:sort_param]
+		end
+		redirect_to movies_path(:sort_param => params[:sort_param], :ratings => params[:ratings])
+    	else
+
+		if
+		  @checked_ratings = params[:ratings]? params[:ratings].keys : @all_ratings
+		  session[:ratings] = params[:ratings] ? params[:ratings].keys : []
+		end
+	    if(params[:sort_param]==nil and session[:sort_param] != nil)
+		params[:sort_param]=session[:sort_param]
+   	 end
+   		 session[:sort_param] = params[:sort_param]
+    	session[:ratings] = params[:ratings]
+   	 if(params[:sort_param] == "title")
       if(params[:ratings] )
-	@movies = Movie.where(:rating => (@selected==[]? @all_ratings : @selected)).order(params[:sort])
+	@movies = Movie.where(:rating => (@checked_ratings==[]? @all_ratings : @checked_ratings)).order(params[:sort_param])
       else
-	@movies = Movie.all.order(params[:sort])
+	@movies = Movie.all.order(params[:sort_param])
       end
-    elsif (params[:sort] == "release_date")
+    elsif (params[:sort_param] == "release_date")
       if(params[:ratings])
-	@movies = Movie.where(:rating => @selected).order(params[:sort])
+	@movies = Movie.where(:rating => @checked_ratings).order(params[:sort_param])
       else
 	@movies = Movie.all.order("release_date")
       end
-    elsif (params[:sort]==nil)
+    elsif (params[:sort_param]==nil)
       if(params[:ratings] )
-	@movies = Movie.where(:rating => @selected==[] ? @all_ratings : @selected)
+	@movies = Movie.where(:rating => @checked_ratings==[] ? @all_ratings : @checked_ratings)
       else
 	@movies = Movie.all
       end
