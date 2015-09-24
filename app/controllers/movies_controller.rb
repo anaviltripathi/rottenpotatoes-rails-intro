@@ -2,7 +2,6 @@ class MoviesController < ApplicationController
 
   def movie_params
     params.require(:movie).permit(:title, :rating, :description, :release_date)
-    @first_time = 1
   end
 
   def show
@@ -10,102 +9,53 @@ class MoviesController < ApplicationController
     @movie = Movie.find(id) # look up movie by unique ID
     # will render app/views/movies/show.<extension> by default
   end
-  
+
   def index
-	@checked_ratings = {}
-	@all_ratings = ['G','PG','PG-13','R']
-	
+    #@movies = Movie.all
+    #@movies = Movie.order(params[:sort]) 
+    @all_ratings = Movie.all_ratings
+    if(params[:ratings] == nil and params[:sort] == nil and (session[:ratings] != nil or session[:sort] != nil))
+	if(params[:ratings] == nil and session[:ratings] != nil)
+	  params[:ratings] = session[:ratings]
+	end
+	if(params[:sort] == nil and session[:sort] != nil)
+	  params[:sort] = session[:sort]
+	end
+	redirect_to movies_path(:sort => params[:sort], :ratings => params[:ratings])
+    else
+	#if(params[:strratings] != nil and params[:strratings] != "[]")
+	#  @selected = params[:strratings].scan(/[\w-]+/)
+	#  session[:strratings] = params[:strratings]
+	if
+	  @selected = params[:ratings]? params[:ratings].keys : @all_ratings
+	  session[:ratings] = params[:ratings] ? params[:ratings].keys : []
+	end
+    if(params[:sort]==nil and session[:sort] != nil)
+	params[:sort]=session[:sort]
+    end
+    session[:sort] = params[:sort]
+    session[:ratings] = params[:ratings]
+    if(params[:sort] == "title")
+      if(params[:ratings] )
+	@movies = Movie.where(:rating => (@selected==[]? @all_ratings : @selected)).order(params[:sort])
+      else
+	@movies = Movie.all.order(params[:sort])
+      end
+    elsif (params[:sort] == "release_date")
+      if(params[:ratings])
+	@movies = Movie.where(:rating => @selected).order(params[:sort])
+      else
+	@movies = Movie.all.order("release_date")
+      end
+    elsif (params[:sort]==nil)
+      if(params[:ratings] )
+	@movies = Movie.where(:rating => @selected==[] ? @all_ratings : @selected)
+      else
 	@movies = Movie.all
-	
-	@redirect_stopper = 1
-  	
-  	
-#  	if(params[:sort_param]==nil)
- #  		sort = session[:sort_param] 
- #  	else
-  # 		sort = params[:sort_param]
- #  	end
-
-  # 	if(params[:ratings]==nil)
-  # 		rat = session[:ratings]
-  # 	else
-  # 		rat = params[:ratings]
-  # 	end
-	
-	if(params[:sort_param]==nil)
-   		params[:sort_param] = session[:sort_param]
-   	end
-
-   	if(params[:ratings]==nil)
-   		params[:ratings] = session[:ratings]
-   	end
-	    	
-   	if(params[:ratings]!=nil or params[:sort_param] != nil or session[:ratings]!=nil or session[:sort_param] != nil)
-   		
-  		if(params[:ratings]==nil)# and @redirect_stopper == 0)
- 
-   			@redirect_stopper =0
-   			#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1 and return 
-  	 	end
-   	
-  	 	if(params[:sort_param]==nil)#  and @redirect_stopper == 0)
-		   	@redirect_stopper =0
-  	 		#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1  and return 
-  	 	end
-  	 	if(params[:sort_param]!=nil and params[:ratings]!=nil)
-  	 		@redirect_stopper = 1
-  	 	end
-  	
-  	end
-  	
-  	if(@redirect_stopper == 0 and rat != nil and sort !=nil)
-		flash.keep
-  		redirect_to :ratings => rat, :sort_param => sort and return
-  	end
-  	
-  	
-  	@all_ratings.each { |rating|
-	if params[:ratings] == nil
-			@checked_ratings[rating] = false
-	else
-		@checked_ratings[rating] = params[:ratings].has_key?(rating)
-	end
-	}
-	
-  	
-  	if(params[:ratings]!=nil)
-  		@movies = @movies.find_all{ |m| @checked_ratings.has_key?(m.rating) and @checked_ratings[m.rating]==true}
-  	else
-  		@movies = @movies.find_all{|m| @checked_ratings[m.rating]==false}
-
-  	end
-  
-  	if (params[:sort_param] == 'title')
-    	#params[:sort_param] = session[:sort_param]
-    	@movies = @movies.sort_by{|m| m.title.to_s}
-    	@title_header = 'hilite'
-    elsif params[:sort_param] == 'release_date'
-    	#params[:sort_param] = session[:sort_param]
-    	@movies = @movies.sort_by{|m| m.release_date.to_s}
-    	@release_header = 'hilite'
-   	end	
-	
-	if(params[:sort_param]!= nil)
-	session[:sort_param] = params[:sort_param]
-	end
-	if(params[:ratings]!= nil)
-	session[:ratings] = params[:ratings]
-	end
-	
-	if(@redirect_stopper == 0)
-		flash.keep
-  		redirect_to :ratings => rat, :sort_param => sort and return
-  	end
-	
-	
+      end
+    end
+   end
   end
-  	
-  	
 
   def new
     # default: render 'new' template
@@ -136,4 +86,3 @@ class MoviesController < ApplicationController
   end
 
 end
-
