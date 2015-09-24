@@ -40,23 +40,23 @@ class MoviesController < ApplicationController
    		params[:ratings] = session[:ratings]
    	end
 	    	
-  # 	if(params[:ratings]!=nil or params[:sort_param] != nil or session[:ratings]!=nil or session[:sort_param] != nil)
+   	if(params[:ratings]!=nil or params[:sort_param] != nil or session[:ratings]!=nil or session[:sort_param] != nil)
    		
-   #		if(params[:ratings]==nil)# and @redirect_stopper == 0)
+  		if(params[:ratings]==nil)# and @redirect_stopper == 0)
  
-   	#		@redirect_stopper =0
-   	#		#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1 and return 
-  	 #	end
+   			@redirect_stopper =0
+   			#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1 and return 
+  	 	end
    	
-  	 #	if(params[:sort_param]==nil)#  and @redirect_stopper == 0)
-		#   	@redirect_stopper =0
+  	 	if(params[:sort_param]==nil)#  and @redirect_stopper == 0)
+		   	@redirect_stopper =0
   	 		#redirect_to :ratings => rat, :sort_param => sort, @redirect_stopper => 1  and return 
-  	 #	end
-  	 	#if(params[:sort_param]!=nil and params[:ratings]!=nil)
-  	 	#	@redirect_stopper = 1
-  	 	#end
+  	 	end
+  	 	if(params[:sort_param]!=nil and params[:ratings]!=nil)
+  	 		@redirect_stopper = 1
+  	 	end
   	
-  #	end
+  	end
   	
   	if(@redirect_stopper == 0 and rat != nil and sort !=nil)
 		flash.keep
@@ -79,8 +79,6 @@ class MoviesController < ApplicationController
   		@movies = @movies.find_all{|m| @checked_ratings[m.rating]==false}
 
   	end
-  	
-  	
   
   	if (params[:sort_param] == 'title')
     	#params[:sort_param] = session[:sort_param]
@@ -91,8 +89,6 @@ class MoviesController < ApplicationController
     	@movies = @movies.sort_by{|m| m.release_date.to_s}
     	@release_header = 'hilite'
    	end	
-   	
-   	@first_time=0
 	
 	if(params[:sort_param]!= nil)
 	session[:sort_param] = params[:sort_param]
